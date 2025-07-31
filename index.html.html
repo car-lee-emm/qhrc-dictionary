@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dictionary of Learning & Development Terminology</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #337a9e 0%, #3997a0 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #337a9e 0%, #004270 100%);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+
+        .controls {
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .search-container {
+            margin-bottom: 30px;
+        }
+
+        .search-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #337a9e;
+            border-radius: 8px;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            color: white !important;
+            transform: translateY(-1px);
+        }
+
+        .filter-btn:focus {
+            outline: 3px solid #ffbf47;
+            outline-offset: 2px;
+        }
+
+        /* Category colors - Updated with QHRC palette for better visibility */
+        .filter-btn[data-category="all"] { border-color: #383d40; color: #383d40; }
+        .filter-btn[data-category="all"].active { background: #383d40; }
+        .filter-btn[data-category="Content Development"] { border-color: #004270; color: #004270; }
+        .filter-btn[data-category="Content Development"].active { background: #004270; }
+        .filter-btn[data-category="Content Format"] { border-color: #3997a0; color: #3997a0; }
+        .filter-btn[data-category="Content Format"].active { background: #3997a0; }
+        .filter-btn[data-category="Development"] { border-color: #23617f; color: #23617f; }
+        .filter-btn[data-category="Development"].active { background: #23617f; }
+        .filter-btn[data-category="Emerging Technology"] { border-color: #8d361e; color: #8d361e; }
+        .filter-btn[data-category="Emerging Technology"].active { background: #8d361e; }
+        .filter-btn[data-category="Evaluation & Analytics"] { border-color: #d93b38; color: #d93b38; }
+        .filter-btn[data-category="Evaluation & Analytics"].active { background: #d93b38; }
+        .filter-btn[data-category="Learning Delivery"] { border-color: #6bcce0; color: #6bcce0; }
+        .filter-btn[data-category="Learning Delivery"].active { background: #6bcce0; }
+        .filter-btn[data-category="Learning Design"] { border-color: #f59433; color: #f59433; }
+        .filter-btn[data-category="Learning Design"].active { background: #f59433; }
+        .filter-btn[data-category="Team Roles"] { border-color: #383d40; color: #383d40; }
+        .filter-btn[data-category="Team Roles"].active { background: #383d40; }
+        .filter-btn[data-category="Technical Standards"] { border-color: #e56b38; color: #e56b38; }
+        .filter-btn[data-category="Technical Standards"].active { background: #e56b38; }
+        .filter-btn[data-category="Theory"] { border-color: #6ca9c0; color: #6ca9c0; }
+        .filter-btn[data-category="Theory"].active { background: #6ca9c0; }
+
+        .terms-container {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .term-card {
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 5px solid #337a9e;
+        }
+
+        .term-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .term-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #337a9e;
+            margin-bottom: 10px;
+        }
+
+        .term-category {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #337a9e;
+            color: white;
+            border-radius: 15px;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .click-hint {
+            font-size: 14px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            background: #337a9e;
+            color: white;
+            padding: 20px;
+            position: relative;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .modal-category {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-definition {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .stats {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Dictionary of Learning & Development Terminology</h1>
+            <p>Queensland Human Rights Commission</p>
+        </div>
+
+        <div class="controls">
+            <div class="search-container">
+                <label for="searchInput" class="search-label">Search terms</label>
+                <input type="text" id="searchInput" placeholder="Enter search term...">
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" data-category="all">All Terms</button>
+                <button class="filter-btn" data-category="Content Development">Content Development</button>
+                <button class="filter-btn" data-category="Content Format">Content Format</button>
+                <button class="filter-btn" data-category="Development">Development</button>
+                <button class="filter-btn" data-category="Emerging Technology">Emerging Technology</button>
+                <button class="filter-btn" data-category="Evaluation & Analytics">Evaluation & Analytics</button>
+                <button class="filter-btn" data-category="Learning Delivery">Learning Delivery</button>
+                <button class="filter-btn" data-category="Learning Design">Learning Design</button>
+                <button class="filter-btn" data-category="Team Roles">Team Roles</button>
+                <button class="filter-btn" data-category="Technical Standards">Technical Standards</button>
+                <button class="filter-btn" data-category="Theory">Theory</button>
+            </div>
+        </div>
+
+        <div class="terms-container" id="termsContainer">
+            <!-- Terms will be populated here -->
+        </div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+            <h3>No terms found</h3>
+            <p>Try adjusting your search or filter criteria</p>
+        </div>
+
+        <div class="stats" id="stats">
+            <strong id="termCount">77</strong> terms available
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="termModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close">&times;</button>
+                <h2 class="modal-title" id="modalTitle">Term Name</h2>
+                <div class="modal-category" id="modalCategory">Category</div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-definition" id="modalDefinition">Definition text here...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Complete terms from the L&D Dictionary document - Updated colors for visibility
+        const terms = [
+            {
+                name: "Adapt",
+                definition: "Minor modifications to learning delivery methods, timing or emphasis that preserve the fundamental content and structure. Adaptions focus on logistical and practical changes rather than content alterations, enabling learning experiences to fit different constraints or preferences.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "ADDIE Model",
+                definition: "A systematic instructional design framework comprising five phases: Analysis, Design, Development, Implementation and Evaluation. ADDIE provides a structured approach to creating effective learning experiences by ensuring each phase builds logically upon the previous one. This model guides learning professionals through a comprehensive process that addresses learner needs, objectives and outcomes whilst maintaining quality and consistency throughout development.",
+                category: "Theory",
+                color: "#6ca9c0"
+            },
+            {
+                name: "Application Programming Interface (API)",
+                definition: "Technical specifications that enable different software systems to communicate and share data effectively. APIs facilitate integration between learning platforms, content repositories and third-party tools.",
+                category: "Technical Standards",
+                color: "#e56b38"
+            },
+            {
+                name: "Artificial Intelligence (AI) in Learning",
+                definition: "Technologies that personalise learning experiences, automate administrative tasks and provide intelligent tutoring support. AI applications include chatbots, adaptive learning systems and automated content curation.",
+                category: "Emerging Technology",
+                color: "#8d361e"
+            },
+            {
+                name: "Asynchronous Learning",
+                definition: "Self-paced learning where learners access content and complete activities at their preferred time and location. Asynchronous formats include pre-recorded content, discussion forums and eLearning modules.",
+                category: "Learning Delivery",
+                color: "#6bcce0"
+            },
+            {
+                name: "Content Authoring Tool",
+                definition: "Software as a service including but not limited to eLearning design, video creation, graphic design, presentation creation. Some of these tools leverage Artificial Intelligence to create and design content. Can stand alone or sit inside other software.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "Bespoke",
+                definition: "The creation of entirely original learning solutions designed from scratch to meet unique organisational requirements. Bespoke development involves comprehensive needs analysis, custom framework design and the creation of wholly new content aligned with specific competency models or cultural contexts. This approach delivers learning experiences that precisely address particular challenges and objectives that cannot be met through existing solutions. Examples include developing leadership programs with organisation-specific competency frameworks or creating compliance training for unique regulatory environments.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "Blended Learning",
+                definition: "Blended learning combines face-to-face training with eLearning and other modes of delivery to create more effective workplace development. Rather than choosing between classroom sessions or online modules, it strategically uses both to maximise learning outcomes.",
+                category: "Learning Delivery",
+                color: "#6bcce0"
+            },
+            {
+                name: "Bloom's Taxonomy",
+                definition: "A hierarchical framework that classifies cognitive processes into six levels: Remember, Understand, Apply, Analyse, Evaluate and Create. The updated taxonomy (2001) uses action verbs to focus on learner behaviours rather than content delivery. This framework enables learning designers to structure activities and assessments that progressively develop learners' thinking skills from basic recall to complex creative tasks.",
+                category: "Theory",
+                color: "#6ca9c0"
+            },
+            {
+                name: "Case Law Activity",
+                definition: "A learning activity where participants consider or apply case law to develop skills in interpreting legal concepts.",
+                category: "Content Format",
+                color: "#3997a0"
+            },
+            {
+                name: "Chatbots and Virtual Assistants",
+                definition: "AI-powered tools that provide instant learner support, answer frequently asked questions and guide learners through learning processes. These tools enhance learner support whilst reducing administrative workload.",
+                category: "Emerging Technology",
+                color: "#8d361e"
+            },
+            {
+                name: "Completion Rate",
+                definition: "The percentage of enrolled learners who successfully finish learning activities or programs within specified timeframes. Completion rates serve as one performance indicator for learning program effectiveness.",
+                category: "Evaluation & Analytics",
+                color: "#d93b38"
+            },
+            {
+                name: "Constructive Alignment",
+                definition: "The systematic alignment of learning outcomes, teaching activities and assessment methods to ensure coherent and effective learning experiences. This approach guarantees that all elements of the learning design work together purposefully.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "Content Curation",
+                definition: "The strategic process of discovering, evaluating, selecting and organising existing learning materials to create meaningful and cohesive learning experiences. Content curation involves identifying high-quality resources from various sources, assessing their relevance and credibility, then structuring them into logical sequences that support specific learning objectives. This approach enables learning professionals to leverage existing expertise and materials whilst ensuring learners receive well-organised, purposeful content that addresses their needs without requiring complete content creation from scratch.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "Content Management System (CMS)",
+                definition: "A platform designed specifically for organising, storing and managing learning content assets. Learning-focused CMS platforms enable efficient content versioning, collaboration and reuse across multiple learning initiatives.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "Customise",
+                definition: "Significant modification of existing learning content structure and components to meet particular requirements. Customisation involves altering modules and activities while preserving the fundamental framework and pedagogical approach. This process requires more extensive adaption than tailoring, potentially including the removal or addition of content sections. Examples include restructuring program modules or incorporating organisation-specific case law activities and scenarios.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "eLearning",
+                definition: "Digital learning content delivered electronically, typically including interactive elements, multimedia resources and automated tracking capabilities. eLearning is self-paced.",
+                category: "Learning Delivery",
+                color: "#6bcce0"
+            },
+            {
+                name: "eLearning Developer",
+                definition: "A technical specialist who transforms instructional designs into functional digital learning content using authoring tools, programming languages and multimedia software. eLearning developers handle the technical implementation, coding, troubleshooting and quality assurance of digital learning materials, working from designs and specifications provided by instructional designers.",
+                category: "Team Roles",
+                color: "#383d40"
+            },
+            {
+                name: "Engagement Metrics",
+                definition: "Quantitative measures of learner interaction with content, including time spent, click-through rates, discussion participation and resource utilisation. Engagement metrics help identify content effectiveness and learner motivation levels.",
+                category: "Evaluation & Analytics",
+                color: "#d93b38"
+            },
+            {
+                name: "Experiential Learning Theory (Kolb)",
+                definition: "A cyclical learning model based on concrete experience, reflective observation, abstract conceptualisation and active experimentation. This theory recognises that meaningful learning occurs through hands-on experience combined with thoughtful reflection. Experiential learning engages learners in real-world scenarios whilst encouraging them to connect new knowledge with their existing understanding and apply insights to future situations.",
+                category: "Theory",
+                color: "#6ca9c0"
+            },
+            {
+                name: "Face-to-face (can be virtual or in-person)",
+                definition: "Learning experiences where participants and facilitators interact directly in real-time, whether they're physically in the same location or connected through digital platforms.",
+                category: "Learning Delivery",
+                color: "#6bcce0"
+            },
+            {
+                name: "Facilitator",
+                definition: "A learning professional who guides learners through educational experiences by creating supportive environments, encouraging participation, managing group dynamics and helping learners discover knowledge through guided activities. Facilitators focus on enabling learning rather than directing instruction.",
+                category: "Team Roles",
+                color: "#383d40"
+            },
+            {
+                name: "Facilitator Guide",
+                definition: "A comprehensive resource document that provides facilitators with detailed instructions, talking points, activity guidelines, timing recommendations and troubleshooting support for delivering learning sessions. Facilitator guides ensure consistent, high-quality delivery across different trainers and contexts.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "Formative Assessment",
+                definition: "Ongoing evaluation activities that provide learners and instructors with feedback during the learning process. Formative assessments support learning improvement and help identify areas requiring additional focus.",
+                category: "Evaluation & Analytics",
+                color: "#d93b38"
+            },
+            {
+                name: "Gamification",
+                definition: "The strategic application of game design elements and mechanics to learning experiences to increase engagement, motivation and participation. Gamification elements include points, badges, leaderboards and progress indicators.",
+                category: "Learning Design",
+                color: "#f59433"
+            },
+            {
+                name: "Graphic Designer",
+                definition: "A creative professional who develops visual elements including layouts, illustrations, icons, infographics and branding elements that enhance learning materials. Graphic designers ensure visual consistency, accessibility and engagement whilst supporting learning objectives through effective visual communication.",
+                category: "Team Roles",
+                color: "#383d40"
+            },
+            {
+                name: "In-person Workshop",
+                definition: "Traditional face-to-face training delivered in physical locations where participants and facilitators are present in the same room.",
+                category: "Learning Delivery",
+                color: "#6bcce0"
+            },
+            {
+                name: "Instructional Designer (ID)",
+                definition: "A learning professional who applies educational theory, learning science and systematic design processes to create effective learning experiences. Instructional designers analyse learning needs, define objectives, design learning strategies, plan assessments and evaluate learning effectiveness. They focus on the pedagogical structure and learning experience rather than technical implementation.",
+                category: "Team Roles",
+                color: "#383d40"
+            },
+            {
+                name: "Interactive Content",
+                definition: "Learning materials that require active learner participation through clicks, selections, drag-and-drop activities, simulations or other engagement mechanisms. Interactive content increases learner engagement and knowledge retention.",
+                category: "Content Format",
+                color: "#3997a0"
+            },
+            {
+                name: "Job Aid",
+                definition: "A practical reference tool that provides step-by-step instructions, checklists, quick reference guides or decision trees to support task performance. Job aids enable workers to perform effectively without memorising all procedural details, serving as performance support tools at the point of work.",
+                category: "Content Format",
+                color: "#3997a0"
+            },
+            {
+                name: "Just-in-Time Learning",
+                definition: "Learning content delivered precisely when learners need it to perform specific tasks or solve immediate problems. This approach provides relevant, focused information at the point of need, maximising learning efficiency and practical application.",
+                category: "Learning Delivery",
+                color: "#6bcce0"
+            },
+            {
+                name: "Knowledge Bank",
+                definition: "A comprehensive internal database that we use to systematically collect and organise research materials and content sources for educational development purposes. The Knowledge Bank houses diverse resources including articles, websites, case law, ebooks, podcasts and multimedia content, all structured with advanced search capabilities to enable efficient discovery. This curated repository ensures team members can quickly access credible, high-quality sources from reputable providers to support content creation and research activities across all educational initiatives.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "Learner Experience (LX)",
+                definition: "The comprehensive journey and emotional engagement that learners have throughout their interaction with learning content, platforms and support systems. Positive learner experiences enhance motivation, engagement and learning effectiveness.",
+                category: "Learning Design",
+                color: "#f59433"
+            },
+            {
+                name: "Learning Analyst",
+                definition: "A data specialist who collects, analyses and interprets learning-related data to inform decision-making, measure effectiveness and identify improvement opportunities. Learning analysts transform learning metrics into actionable insights that guide learning strategy and design decisions.",
+                category: "Team Roles",
+                color: "#383d40"
+            },
+            {
+                name: "Learning Analytics",
+                definition: "The measurement, collection, analysis and reporting of data about learners and their contexts to understand and optimise learning and the environments in which it occurs. Learning analytics inform evidence-based improvements to learning design.",
+                category: "Evaluation & Analytics",
+                color: "#d93b38"
+            },
+            {
+                name: "Learning Content Writer",
+                definition: "A specialist who creates clear, engaging written content for learning materials including course text, scenarios, assessments and support resources. Content writers adapt their style and approach to suit different audiences, learning contexts and delivery formats.",
+                category: "Team Roles",
+                color: "#383d40"
+            },
+            {
+                name: "Learning Dashboard",
+                definition: "Visual interfaces that present learning data, progress and performance metrics in accessible, actionable formats for learners, instructors and administrators. Dashboards enable data-driven decision-making and personalised support.",
+                category: "Evaluation & Analytics",
+                color: "#d93b38"
+            },
+            {
+                name: "Learning Designer",
+                definition: "A hybrid role that combines instructional design expertise with practical application skills, focusing on creating learner-centred experiences that address real-world performance challenges. Learning designers often work more closely with stakeholders and learners throughout the design process, emphasising iterative design and continuous improvement.",
+                category: "Team Roles",
+                color: "#383d40"
+            },
+            {
+                name: "Learning Effectiveness Measurement",
+                definition: "Systematic approaches to evaluating whether learning interventions achieve their intended outcomes and contribute to organisational goals and individual development objectives.",
+                category: "Evaluation & Analytics",
+                color: "#d93b38"
+            },
+            {
+                name: "Learning Experience Designer (LXD)",
+                definition: "A professional who focuses specifically on crafting engaging, human-centred learning journeys that consider emotional, motivational and experiential aspects of learning. LXDs apply user experience design principles to create compelling, accessible learning interactions that resonate with learners.",
+                category: "Team Roles",
+                color: "#383d40"
+            },
+            {
+                name: "Learning Management System (LMS)",
+                definition: "A comprehensive service software that hosts, delivers and manages learning content whilst tracking learner progress and performance. An LMS facilitates course administration, learner enrolment, assessment delivery and reporting functions.",
+                category: "Development",
+                color: "#004270"
+            },
+            {
+                name: "Learning Needs Analysis (LNA)",
+                definition: "A systematic process to identify the gap between current and desired capabilities within an organisation. LNAs examine what people need to know, do differently or understand better to achieve business objectives and personal development goals. This process informs the design of targeted learning interventions that address real workplace challenges and opportunities for growth.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "Learning Object",
+                definition: "A reusable, self-contained digital learning resource designed to support specific learning objectives. Learning objects can be combined, sequenced and repurposed across different courses and contexts whilst maintaining their educational effectiveness.",
+                category: "Content Format",
+                color: "#3997a0"
+            },
+            {
+                name: "Learning Objectives",
+                definition: "Specific, observable goals that define what learners should accomplish during particular learning sessions or modules. Learning objectives provide clear direction for both learners and instructors regarding expected achievements.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "Learning Outcomes",
+                definition: "Clear, measurable statements describing what learners will be able to demonstrate, perform or achieve upon successful completion of learning activities. Well-crafted learning outcomes guide instructional design, assessment development and learning evaluation.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "Learning Platform",
+                definition: "The combination of software, applications, devices and electronic systems that support, enhances or enables learning activities. The platform is designed to facilitate the learning process and content delivery.",
+                category: "Development",
+                color: "#004270"
+            },
+            {
+                name: "Learning Project Manager",
+                definition: "A professional who coordinates learning development projects, managing timelines, resources, stakeholders and deliverables to ensure successful project completion. Learning project managers understand both project management principles and learning development processes.",
+                category: "Team Roles",
+                color: "#383d40"
+            },
+            {
+                name: "Learning Resource",
+                definition: "Any material, content asset or support item that contributes to learning objectives, including documents, videos, assessments, templates, references and supplementary materials. Learning resources can be standalone items or integrated components of larger learning experiences.",
+                category: "Content Format",
+                color: "#3997a0"
+            },
+            {
+                name: "Mandatory Training",
+                definition: "Required learning programs that employees must complete due to legal, regulatory, policy or safety requirements. Mandatory training ensures compliance with organisational standards and external regulations, typically including workplace safety, harassment prevention and professional certification requirements.",
+                category: "Learning Delivery",
+                color: "#6bcce0"
+            },
+            {
+                name: "Microlearning",
+                definition: "Focused learning content delivered in discreet, digestible segments typically lasting 2-10 minutes. Microlearning modules target specific learning objectives and enable learners to acquire knowledge efficiently within busy schedules.",
+                category: "Learning Delivery",
+                color: "#6bcce0"
+            },
+            {
+                name: "Multimedia Developer",
+                definition: "A technical specialist who creates and edits audio, video, animations and interactive media elements for learning content. Multimedia developers possess expertise in media production tools and techniques, ensuring high-quality, accessible multimedia that enhances learning experiences.",
+                category: "Team Roles",
+                color: "#383d40"
+            },
+            {
+                name: "Multimedia Learning",
+                definition: "Content that combines multiple media formats including text, audio, video, graphics and animations to accommodate diverse learning preferences and enhance comprehension.",
+                category: "Content Format",
+                color: "#3997a0"
+            },
+            {
+                name: "Pre-Learning",
+                definition: "Activities and materials designed to prepare learners before the main learning experience begins. Pre-learning activates prior knowledge, introduces key concepts, sets expectations and establishes context to enhance readiness for deeper engagement. This approach enables learners to make connections between existing understanding and new content, creating a foundation for more effective learning. Pre-learning can include advance organisers, introductory readings, self-assessments or preparatory exercises that orient learners towards upcoming topics and learning objectives.",
+                category: "Learning Delivery",
+                color: "#6bcce0"
+            },
+            {
+                name: "Quality Assurance (QA)",
+                definition: "Systematic processes for reviewing and testing learning content, systems and experiences to ensure they meet specified standards for functionality, accessibility and educational effectiveness.",
+                category: "Evaluation & Analytics",
+                color: "#d93b38"
+            },
+            {
+                name: "Responsive Design",
+                definition: "Web design approach that ensures learning content displays optimally across different screen sizes and device types. Responsive learning content automatically adjusts layout, navigation and multimedia elements for enhanced accessibility.",
+                category: "Development",
+                color: "#004270"
+            },
+            {
+                name: "SAM Model (Successive Approximation Model)",
+                definition: "An agile instructional design approach featuring iterative cycles of preparation, design and development. SAM emphasises continuous feedback, rapid prototyping and learner-centred design to create flexible, responsive learning solutions. This model enables learning professionals to adapt quickly to changing requirements whilst maintaining focus on learner needs and practical outcomes through collaborative development processes.",
+                category: "Theory",
+                color: "#6ca9c0"
+            },
+            {
+                name: "Scenario",
+                definition: "Realistic situations that place learners in specific contexts where they must make decisions, solve problems or demonstrate skills. Scenarios create immersive learning experiences that mirror workplace challenges and enable safe practice of complex competencies. Scenarios might be based on one or more real situations.",
+                category: "Content Format",
+                color: "#3997a0"
+            },
+            {
+                name: "SCORM (Sharable Content Object Reference Model)",
+                definition: "A widely adopted set of technical standards that enables eLearning content to communicate effectively with Learning Management Systems. SCORM ensures that learning content created with different authoring tools can be delivered and tracked consistently across various LMS platforms. Available in versions 1.2 and 2004, SCORM packages are delivered as ZIP files containing all necessary course components and metadata.",
+                category: "Technical Standards",
+                color: "#e56b38"
+            },
+            {
+                name: "Session Plan",
+                definition: "A structured document that outlines the objectives, activities, timings, resources and assessment methods for a specific learning session. Session plans guide facilitators through the delivery process whilst ensuring learning objectives are met effectively.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "Simulation",
+                definition: "Interactive learning experiences that replicate real-world scenarios, processes or environments in safe, controlled settings. Simulations enable real practice without real-world risks or costs. (Previously referred to as a role play.)",
+                category: "Content Format",
+                color: "#3997a0"
+            },
+            {
+                name: "Single Sign-On (SSO)",
+                definition: "Authentication technology that enables learners to access multiple learning systems and resources using one set of login credentials, improving user experience and system security.",
+                category: "Technical Standards",
+                color: "#e56b38"
+            },
+            {
+                name: "Social Constructivism",
+                definition: "A learning theory emphasising that knowledge is constructed through social interaction and collaborative meaning-making. This approach recognises learners as active participants who build understanding through dialogue, shared experiences and community engagement. Social constructivism supports diverse perspectives whilst encouraging learners to develop critical thinking skills through interaction with others and their environment.",
+                category: "Theory",
+                color: "#6ca9c0"
+            },
+            {
+                name: "Statutory Training",
+                definition: "Legally mandated training required by government legislation, regulations or industry standards. Statutory training ensures compliance with specific legal obligations and often includes areas such as workplace health and safety and professional licensing requirements.",
+                category: "Learning Delivery",
+                color: "#6bcce0"
+            },
+            {
+                name: "Storyboarding",
+                definition: "The process of creating detailed blueprints for eLearning courses, outlining content structure, interactions, navigation and multimedia elements. Storyboards serve as communication tools between instructional designers, developers and stakeholders.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "Subject Matter Expert (SME)",
+                definition: "An individual with deep knowledge, skills and experience in a specific domain, topic or process who provides accurate, current content and context for learning materials. SMEs collaborate with instructional designers to ensure learning content is technically accurate, relevant and reflects real-world applications.",
+                category: "Team Roles",
+                color: "#383d40"
+            },
+            {
+                name: "Summative Assessment",
+                definition: "Formal evaluation conducted at the end of learning experiences to measure overall achievement and competency attainment. Summative assessments typically contribute to final grades, certifications or completion records.",
+                category: "Evaluation & Analytics",
+                color: "#d93b38"
+            },
+            {
+                name: "Synchronous Learning",
+                definition: "Real-time learning experiences where learners and instructors participate simultaneously, such as virtual classrooms, webinars and live online sessions. Synchronous formats enable immediate interaction, discussion and collaborative learning activities.",
+                category: "Learning Delivery",
+                color: "#6bcce0"
+            },
+            {
+                name: "Tailor",
+                definition: "The modification of existing learning content to better align with specific audience needs through surface-level adjustments. Tailoring involves changing examples, language and contextual references whilst maintaining the core structure and learning objectives. This approach enables content to feel more relevant and relatable to learners without requiring extensive redevelopment. Examples include adapting industry-specific scenarios or adjusting cultural references to suit different organisational contexts.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "Toolkit",
+                definition: "A specialised internal collection of practical resources, templates, guides and operational tools specifically designed to support learning and development, training, facilitation and instructional design activities. The Toolkit provides immediate access to proven materials and frameworks that education team members can utilise to enhance the quality and consistency of educational products and delivery. This carefully curated resource library serves as the professional foundation for facilitators, trainers, learning designers and other education specialists to strengthen their practice and outputs.",
+                category: "Content Development",
+                color: "#004270"
+            },
+            {
+                name: "Trainer",
+                definition: "A learning professional who delivers structured training sessions, demonstrates skills, provides instruction and ensures learners acquire specific competencies. Trainers typically have subject matter expertise and focus on knowledge transfer and skill development.",
+                category: "Team Roles",
+                color: "#383d40"
+            },
+            {
+                name: "Universal Design for Learning (UDL)",
+                definition: "A framework that guides the development of flexible learning environments and content that accommodate diverse learning preferences, abilities and backgrounds. UDL principles ensure learning accessibility for all participants.",
+                category: "Development",
+                color: "#004270"
+            },
+            {
+                name: "User Experience (UX)",
+                definition: "The overall satisfaction and effectiveness that learners experience when interacting with learning systems and content. UX design focuses on creating meaningful, efficient and enjoyable learning interactions.",
+                category: "Learning Design",
+                color: "#f59433"
+            },
+            {
+                name: "User Interface (UI)",
+                definition: "The visual and interactive elements through which learners access and navigate learning content. Well-designed learning interfaces prioritise usability, accessibility and intuitive navigation.",
+                category: "Learning Design",
+                color: "#f59433"
+            },
+            {
+                name: "Video Learning",
+                definition: "Educational content delivered through recorded or live video formats, including instructional videos, demonstrations, webinars and video-based assessments.",
+                category: "Content Format",
+                color: "#3997a0"
+            },
+            {
+                name: "Virtual classroom (such as Mural or Miro)",
+                definition: "An online collaborative space where learners engage in structured activities using interactive digital tools and platforms. Virtual classrooms facilitate real-time participation through features like shared whiteboards, breakout sessions and multimedia presentations. These environments enable creative problem-solving, visual collaboration and group learning experiences that can be accessed from any location whilst maintaining the interactive elements of traditional classroom settings.",
+                category: "Learning Delivery",
+                color: "#6bcce0"
+            },
+            {
+                name: "Virtual Reality (VR) and Augmented Reality (AR)",
+                definition: "Immersive technologies that create realistic simulations and enhanced learning environments for hands-on practice, especially valuable for skills training and complex procedural learning.",
+                category: "Emerging Technology",
+                color: "#8d361e"
+            },
+            {
+                name: "Virtual Workshop",
+                definition: "Live training delivered remotely via digital platforms such as Teams and can include a virtual classroom environment such as Mural.",
+                category: "Learning Delivery",
+                color: "#6bcce0"
+            },
+            {
+                name: "Voluntary Training",
+                definition: "Optional learning opportunities that employees can choose to participate in based on their interests, career goals or development needs. Voluntary training supports personal growth, skill enhancement and career advancement without being mandated by organisational or regulatory requirements.",
+                category: "Learning Delivery",
+                color: "#6bcce0"
+            },
+            {
+                name: "WCAG (Web Content Accessibility Guidelines)",
+                definition: "International standards for making web content accessible to people with disabilities. WCAG guidelines ensure that eLearning content can be perceived, operated, understood and robust across different assistive technologies.",
+                category: "Development",
+                color: "#004270"
+            },
+            {
+                name: "xAPI (Experience API / Tin Can API)",
+                definition: "An advanced eLearning specification that captures learning experiences across multiple platforms, both online and offline. Unlike SCORM, xAPI tracks learning activities beyond the traditional LMS environment, including mobile apps, simulations, real-world performance and collaborative activities. xAPI stores data in a Learning Record Store (LRS) using simple statement formats.",
+                category: "Technical Standards",
+                color: "#e56b38"
+            }
+        ];
+
+        let currentFilter = 'all';
+        let filteredTerms = [...terms];
+
+        function renderTerms(termsToShow) {
+            console.log('Rendering', termsToShow.length, 'terms');
+            const container = document.getElementById('termsContainer');
+            const noResults = document.getElementById('noResults');
+            const termCount = document.getElementById('termCount');
+
+            if (termsToShow.length === 0) {
+                container.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+            termCount.textContent = termsToShow.length;
+
+            // Clear container first
+            container.innerHTML = '';
+
+            // Create cards one by one to avoid quote issues
+            termsToShow.forEach((term, index) => {
+                console.log('Creating card for:', term.name);
+                
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'term-card';
+                cardDiv.style.borderLeftColor = term.color;
+                cardDiv.onclick = function() {
+                    openModal(term.name, term.category, term.definition);
+                };
+
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'term-name';
+                nameDiv.textContent = term.name;
+
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'term-category';
+                categoryDiv.style.backgroundColor = term.color;
+                categoryDiv.textContent = term.category;
+
+                const hintDiv = document.createElement('div');
+                hintDiv.className = 'click-hint';
+                hintDiv.textContent = 'Select to view full definition';
+
+                cardDiv.appendChild(nameDiv);
+                cardDiv.appendChild(categoryDiv);
+                cardDiv.appendChild(hintDiv);
+                
+                container.appendChild(cardDiv);
+            });
+            
+            console.log('Rendered successfully');
+        }
+
+        function openModal(name, category, definition) {
+            const term = terms.find(t => t.name === name);
+            document.getElementById('modalTitle').textContent = name;
+            document.getElementById('modalCategory').textContent = category;
+            document.getElementById('modalCategory').style.backgroundColor = term ? term.color : '#337a9e';
+            document.getElementById('modalDefinition').textContent = definition;
+            document.getElementById('termModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('termModal').style.display = 'none';
+        }
+
+        function filterTerms() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredTerms = terms.filter(term => {
+                const matchesSearch = searchTerm === '' || 
+                    term.name.toLowerCase().includes(searchTerm) ||
+                    term.definition.toLowerCase().includes(searchTerm);
+                
+                const matchesCategory = currentFilter === 'all' || term.category === currentFilter;
+                
+                return matchesSearch && matchesCategory;
+            });
+
+            renderTerms(filteredTerms);
+        }
+
+        function setActiveFilter(category, buttonElement) {
+            currentFilter = category;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            buttonElement.classList.add('active');
+            filterTerms();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, terms:', terms.length);
+            renderTerms(terms);
+
+            document.getElementById('searchInput').addEventListener('input', filterTerms);
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    setActiveFilter(this.getAttribute('data-category'), this);
+                });
+            });
+
+            document.querySelector('.close').addEventListener('click', closeModal);
+            
+            document.getElementById('termModal').addEventListener('click', function(event) {
+                if (event.target === this) {
+                    closeModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
